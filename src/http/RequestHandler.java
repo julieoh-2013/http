@@ -27,7 +27,7 @@ public class RequestHandler extends Thread {
 			consoleLog("connected from " + inetSocketAddress.getAddress().getHostAddress() + ":"
 					+ inetSocketAddress.getPort());
 
-			// get IOStream
+			// get IOStream 소켓의 바이트  데이터를  문자열 데이터로 그리고  라인단위로  받는다
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8")); //byte를 line단위로 읽음//3byte를 char단위스트림 utf-8로 읽기위해 inputStreamReader로 바꾼다.//한줄씩 읽기 위해 bufferedreade로 생성
 			OutputStream os = socket.getOutputStream(); //읽을 때는  line단위로 쓸때는 byte로 쓰기 위해 주output스트림만 생성
 			 
