@@ -43,10 +43,20 @@ public class RequestHandler extends Thread {
 					String protocol ="";
 					String url="";
 					String[] tokens = request.split( " " );
-				 
+					
+					
 					url = tokens[1];
+					if(url == null || "".equals(url)|| "/".equals(url)) {
+						url="/index.html";
+					}
 					protocol = tokens[2];
-					responseStaticResource( os, url, protocol );
+					//tokens[0] 가 “GET” 인 경우만 responseStaticResource 를 호출
+					if(tokens[0].equals("GET")) {
+						responseStaticResource( os, url, protocol );
+					}else {
+						response404Error( os, protocol );
+					}
+					
 					 
 					break;
 					
@@ -75,13 +85,39 @@ public class RequestHandler extends Thread {
 			}
 		}
 	}
+	
+	
+	private void response404Error(OutputStream outputStream, String protocol) throws IOException  {
+		File file = new File( "./webapp/error/404.html" );
+		Path path = file.toPath();
+		
+		String mimeType = Files.probeContentType(path);
+		byte[] body = Files.readAllBytes( path );
+		
+        String msg = protocol + " 404 File Not Found\r\n";
+		outputStream.write( msg.getBytes() );
+		String contentType = "Content-Type:"+mimeType+"\r\n";
+		outputStream.write( contentType.getBytes( "UTF-8" ) );
+		outputStream.write( "\r\n".getBytes() ); 
+		outputStream.write( body );
+
+	}
 
 	private void responseStaticResource( OutputStream outputStream, String url, String protocol ) throws IOException {
 		File file = new File( "./webapp" + url );
+		
+		if ( file.exists() == false ) {
+		     response404Error( outputStream, protocol );
+		     return;
+		}
+
+		
 		Path path = file.toPath();
+		String mimeType = Files.probeContentType( path );
 		byte[] body = Files.readAllBytes( path );
 		outputStream.write( "HTTP/1.1 200 OK\r\n".getBytes( "UTF-8" ));
-		outputStream.write( "Content-Type:text/html\r\n".getBytes( "UTF-8" ) );
+		String contentType = "Content-Type:"+mimeType+"\r\n";
+		outputStream.write( contentType.getBytes( "UTF-8" ) );
 		outputStream.write( "\r\n".getBytes() );
 		outputStream.write( body );
 
